@@ -1,4 +1,4 @@
-from flask import Flask, send_file, current_app
+from flask import Flask, send_file, current_app, Response
 from pathlib import Path
 from .routes import main_bp
 
@@ -17,7 +17,7 @@ def create_app(test_config=None):
 
     @app.route("/health", methods=["GET"])
     def health():
-        return "OK", 200
+        return Response("OK", status=200, mimetype="text/plain")
 
     @app.route("/phonebook.xml", methods=["GET"])
     def serve_phonebook():
