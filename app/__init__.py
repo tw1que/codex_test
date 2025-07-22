@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_file, current_app
 from .routes import main_bp
 
 def create_app(test_config=None):
@@ -16,5 +16,16 @@ def create_app(test_config=None):
     @app.route("/health", methods=["GET"])
     def health():
         return "OK", 200
+
+    @app.route("/phonebook.xml", methods=["GET"])
+    def serve_phonebook():
+        """
+        Serve the phonebook XML file from the configured path.
+        """
+        return send_file(
+            current_app.config["PHONEBOOK_PATH"],
+            mimetype="application/xml",
+            as_attachment=False,
+        )
 
     return app
