@@ -1,35 +1,40 @@
-# Project Title
+# Yealink Phonebook Server
 
-A short description of the project.
+Deze applicatie biedt een webinterface om een Yealink telefoonboek te beheren. Contacten kunnen worden toegevoegd of verwijderd via de browser en worden opgeslagen in `phonebook.xml` in het Yealink-formaat.
 
-## Table of Contents
-- [Overview](#overview)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+## Installatie
 
-## Overview
-Provide a more detailed overview of your project and its goals.
-
-## Installation
-Describe how to install your project and list any prerequisites.
+1. Installeer de vereisten.
 
 ```bash
-# example
-pip install example
+pip install -r requirements.txt
 ```
 
-## Usage
-Give instructions and examples of how to use your project.
+2. Start de applicatie lokaal.
 
 ```bash
-# example
-python app.py --help
+python run.py
 ```
 
-## Contributing
-Explain how others can contribute to your project.
+## Gebruik
 
-## License
-Specify the license for your project.
+Bezoek `http://localhost:8080` voor een lijst van contacten. Gebruik de knop **Nieuwe contact** om een contact toe te voegen. Elk contact heeft een naam, nummer en optioneel label. Wijzigingen worden direct opgeslagen in `phonebook.xml`.
+
+## Docker deployment
+
+De meegeleverde `Dockerfile` bouwt een image dat via Gunicorn op poort 8080 draait. Build en start bijvoorbeeld met:
+
+```bash
+docker build -t phonebook .
+docker run -p 8080:8080 phonebook
+```
+
+Dit is gemakkelijk te deployen via Portainer of de CLI op een Synology NAS.
+
+## Tests
+
+Pytest-tests controleren de logica voor het toevoegen en verwijderen van contacten.
+
+```bash
+pytest
+```
