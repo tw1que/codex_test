@@ -14,7 +14,7 @@ def client():
 
 def test_add_and_delete(client):
     # add contact
-    response = client.post('/add', data={'name': 'John', 'telephone': '+12345', 'label': 'Kantoor'}, follow_redirects=True)
+    response = client.post('/add', data={'name': 'John', 'telephone': '+31 6 28330622', 'label': 'Kantoor'}, follow_redirects=True)
     assert response.status_code == 200
     assert b'John' in response.data
     # delete contact
@@ -23,8 +23,8 @@ def test_add_and_delete(client):
 
 
 def test_edit_contact(client):
-    client.post('/add', data={'name': 'Jane', 'telephone': '+67890', 'label': ''})
+    client.post('/add', data={'name': 'Jane', 'telephone': '+31 6 11111111', 'label': ''})
     # edit contact
-    response = client.post('/edit/0', data={'name': 'Janet', 'telephone': '+67890', 'label': 'Priv'}, follow_redirects=True)
+    response = client.post('/edit/0', data={'name': 'Janet', 'telephone': '+31 6 22222222', 'label': 'Priv'}, follow_redirects=True)
     assert response.status_code == 200
     assert b'Janet' in response.data
