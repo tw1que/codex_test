@@ -2,6 +2,7 @@ import os
 import tempfile
 import pytest
 from app import create_app
+from app.models import load_phonebook
 
 @pytest.fixture
 def client():
@@ -22,8 +23,11 @@ def test_add_and_delete(client):
     assert response.status_code == 200
     assert b'Jane' in response.data and b'John' in response.data
 
-    # delete second contact
-    response = client.post('/delete/1', follow_redirects=True)
+    # delete contact "Jane" by finding its sorted index
+    path = client.application.config['PHONEBOOK_PATH']
+    contacts = load_phonebook(path)
+    jane_index = next(i for i, c in enumerate(contacts) if c['name'] == 'Jane')
+    response = client.post(f'/delete/{jane_index}', follow_redirects=True)
     assert b'Jane' not in response.data
     assert b'John' in response.data
 

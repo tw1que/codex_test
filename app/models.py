@@ -21,12 +21,14 @@ def load_phonebook(path):
             tel = ''
             label = ''
         contacts.append({'name': name, 'telephone': tel, 'label': label})
+    contacts.sort(key=lambda c: c['name'].lower())
     return contacts
 
 
 def save_phonebook(path, contacts):
+    contacts_sorted = sorted(contacts, key=lambda c: c['name'].lower())
     root = ET.Element('YealinkIPPhoneDirectory')
-    for c in contacts:
+    for c in contacts_sorted:
         entry = ET.SubElement(root, 'DirectoryEntry')
         ET.SubElement(entry, 'Name').text = c['name']
         tel = ET.SubElement(entry, 'Telephone')
