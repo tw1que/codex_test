@@ -12,4 +12,9 @@ def create_app(test_config=None):
         app.config.update(test_config)
 
     app.register_blueprint(main_bp)
+
+    @app.route("/health", methods=["GET"])
+    def health():
+        return "OK", 200
+
     return app
