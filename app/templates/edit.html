@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact bewerken{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Contact bewerken</h1>
+<form method="post" class="space-y-4">
+  <div>
+    <label class="block mb-1">Naam</label>
+    <input class="w-full border p-2 rounded" type="text" name="name" value="{{ contact.name }}">
+  </div>
+  <div>
+    <label class="block mb-1">Nummer</label>
+    <input class="w-full border p-2 rounded" type="text" name="telephone" value="{{ contact.telephone }}">
+  </div>
+  <div>
+    <label class="block mb-1">Label</label>
+    <input class="w-full border p-2 rounded" type="text" name="label" value="{{ contact.label }}">
+  </div>
+  <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" type="submit">Opslaan</button>
+</form>
+<a class="inline-block mt-4 text-blue-500 hover:underline" href="{{ url_for('main.index') }}">Terug</a>
+{% endblock %}

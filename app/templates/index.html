@@ -12,6 +12,13 @@
     <form action="{{ url_for('main.delete', index=loop.index0) }}" method="post">
         <button class="text-red-600 hover:underline" type="submit">Verwijder</button>
     </form>
+
+    <div>
+      <a class="text-blue-500 hover:underline mr-2" href="{{ url_for('main.edit', index=loop.index0) }}">Bewerk</a>
+      <form class="inline" action="{{ url_for('main.delete', index=loop.index0) }}" method="post">
+          <button class="text-red-600 hover:underline" type="submit">Verwijder</button>
+      </form>
+    </div>
   </li>
   {% endfor %}
 </ul>
