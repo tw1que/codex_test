@@ -1,11 +1,13 @@
 from flask import Flask, send_file, current_app
+from pathlib import Path
 from .routes import main_bp
 
 def create_app(test_config=None):
     app = Flask(__name__)
+    default_phonebook = Path(__file__).resolve().parents[1] / "phonebook.xml"
     app.config.from_mapping(
         SECRET_KEY='dev',
-        PHONEBOOK_PATH='phonebook.xml'
+        PHONEBOOK_PATH=str(default_phonebook)
     )
 
     if test_config:
