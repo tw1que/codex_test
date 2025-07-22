@@ -20,7 +20,7 @@ python run.py
 
 Bezoek `http://localhost:8080` voor een lijst van contacten. Gebruik de knop **Nieuwe contact** om een contact toe te voegen. Elk contact heeft een naam, nummer en optioneel label. Wijzigingen worden direct opgeslagen in `phonebook.xml`.
 
-## Docker deployment
+## Docker Deployment
 
 De meegeleverde `Dockerfile` bouwt een image dat via Gunicorn op poort 8080 draait. Build en start bijvoorbeeld met:
 
