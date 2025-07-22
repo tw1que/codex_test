@@ -80,3 +80,9 @@ def test_import_with_invalid_rows(client):
     # only valid rows should be imported
     assert b'Valid' in response.data and b'Another' in response.data
     assert b'Bad' not in response.data
+
+
+def test_health_endpoint(client):
+    response = client.get('/health')
+    assert response.status_code == 200
+    assert response.data == b'OK'
