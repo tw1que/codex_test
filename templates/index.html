@@ -1,0 +1,22 @@
+<!doctype html>
+<title>Telefoonboek</title>
+<h1>Contacten</h1>
+<a href="{{ url_for('main.add') }}">Nieuwe contact</a>
+<ul>
+{% for c in contacts %}
+    <li>{{ c.name }} - {{ c.telephone }} ({{ c.label }})
+        <form action="{{ url_for('main.delete', index=loop.index0) }}" method="post" style="display:inline;">
+            <button type="submit">Verwijder</button>
+        </form>
+    </li>
+{% endfor %}
+</ul>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flashes">
+    {% for category, message in messages %}
+      <li class="{{ category }}">{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}

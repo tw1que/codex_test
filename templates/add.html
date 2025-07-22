@@ -1,0 +1,19 @@
+<!doctype html>
+<title>Contact toevoegen</title>
+<h1>Nieuw contact</h1>
+<form method="post">
+  Naam: <input type="text" name="name"><br>
+  Nummer: <input type="text" name="telephone"><br>
+  Label: <input type="text" name="label"><br>
+  <button type="submit">Opslaan</button>
+</form>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flashes">
+    {% for category, message in messages %}
+      <li class="{{ category }}">{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+<a href="{{ url_for('main.index') }}">Terug</a>
