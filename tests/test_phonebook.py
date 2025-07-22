@@ -20,3 +20,11 @@ def test_add_and_delete(client):
     # delete contact
     response = client.post('/delete/0', follow_redirects=True)
     assert b'John' not in response.data
+
+
+def test_edit_contact(client):
+    client.post('/add', data={'name': 'Jane', 'telephone': '+67890', 'label': ''})
+    # edit contact
+    response = client.post('/edit/0', data={'name': 'Janet', 'telephone': '+67890', 'label': 'Priv'}, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Janet' in response.data

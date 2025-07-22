@@ -50,3 +50,17 @@ def delete_contact(path, index):
         save_phonebook(path, contacts)
         return True
     return False
+
+
+def update_contact(path, index, name, telephone, label=''):
+    """Update an existing contact by index."""
+    contacts = load_phonebook(path)
+    if 0 <= index < len(contacts):
+        contacts[index] = {
+            'name': name,
+            'telephone': telephone,
+            'label': label,
+        }
+        save_phonebook(path, contacts)
+        return True
+    return False
