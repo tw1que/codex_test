@@ -9,9 +9,12 @@
   {% for c in contacts %}
   <li class="flex justify-between items-center bg-white p-2 rounded shadow">
     <span>{{ c.name }} - {{ c.telephone }}{% if c.label %} ({{ c.label }}){% endif %}</span>
-    <form action="{{ url_for('main.delete', index=loop.index0) }}" method="post">
-        <button class="text-red-600 hover:underline" type="submit">Verwijder</button>
-    </form>
+    <div>
+      <a class="text-blue-500 hover:underline mr-2" href="{{ url_for('main.edit', index=loop.index0) }}">Bewerk</a>
+      <form class="inline" action="{{ url_for('main.delete', index=loop.index0) }}" method="post">
+          <button class="text-red-600 hover:underline" type="submit">Verwijder</button>
+      </form>
+    </div>
   </li>
   {% endfor %}
 </ul>
