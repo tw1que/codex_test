@@ -1,5 +1,6 @@
-from flask import Blueprint, current_app, render_template, request, redirect, url_for, abort
-from .models import load_phonebook, add_contact, delete_contact, update_contact
+from flask import Blueprint, current_app, render_template, request, redirect, url_for, abort, flash
+from io import TextIOWrapper
+from .models import load_phonebook, add_contact, delete_contact, update_contact, import_contacts
 from .utils import validate_contact
 
 main_bp = Blueprint('main', __name__)
@@ -42,3 +43,19 @@ def edit(index):
             return redirect(url_for('main.index'))
     contact = contacts[index]
     return render_template('edit.html', contact=contact, index=index)
+
+
+@main_bp.route('/import', methods=['GET', 'POST'])
+def import_view():
+    if request.method == 'POST':
+        file = request.files.get('file')
+        if file:
+            text_file = TextIOWrapper(file.stream, encoding='utf-8')
+            count = import_contacts(
+                current_app.config['PHONEBOOK_PATH'], text_file, validate_contact
+            )
+            if count:
+                flash(f"{count} contacten ge\u00efmporteerd.", "info")
+            return redirect(url_for('main.index'))
+        flash('Geen bestand ge\u00fcppload.', 'error')
+    return render_template('import.html')

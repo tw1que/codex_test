@@ -64,3 +64,26 @@ def update_contact(path, index, name, telephone, label=''):
         save_phonebook(path, contacts)
         return True
     return False
+
+
+def import_contacts(path, fileobj, validator):
+    """Import contacts from a CSV ``fileobj``.
+
+    ``validator`` is a callable like :func:`validate_contact` used to validate
+    each row. Only valid contacts are appended. The function returns the number
+    of successfully imported contacts.
+    """
+    import csv
+    contacts = load_phonebook(path)
+    reader = csv.DictReader(fileobj)
+    added = 0
+    for row in reader:
+        name = row.get('name') or row.get('Name')
+        telephone = row.get('telephone') or row.get('Telephone')
+        label = row.get('label') or row.get('Label') or ''
+        if validator(name, telephone):
+            contacts.append({'name': name, 'telephone': telephone, 'label': label})
+            added += 1
+    if added:
+        save_phonebook(path, contacts)
+    return added

@@ -28,3 +28,13 @@ def test_edit_contact(client):
     response = client.post('/edit/0', data={'name': 'Janet', 'telephone': '+31 6 22222222', 'label': 'Priv'}, follow_redirects=True)
     assert response.status_code == 200
     assert b'Janet' in response.data
+
+
+def test_import_contacts(client):
+    csv_data = "name,telephone,label\nJohn,+31611111111,Kantoor\nJane,+31622222222,Priv"
+    data = {
+        'file': (csv_data.encode('utf-8'), 'contacts.csv'),
+    }
+    response = client.post('/import', data=data, content_type='multipart/form-data', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'John' in response.data and b'Jane' in response.data
