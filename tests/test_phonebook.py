@@ -80,3 +80,11 @@ def test_import_with_invalid_rows(client):
     # only valid rows should be imported
     assert b'Valid' in response.data and b'Another' in response.data
     assert b'Bad' not in response.data
+
+
+def test_phonebook_xml(client):
+    client.post('/add', data={'name': 'XML User', 'telephone': '+31612345678'})
+    response = client.get('/phonebook.xml')
+    assert response.status_code == 200
+    assert response.mimetype == 'application/xml'
+    assert response.data.startswith(b'<?xml')
