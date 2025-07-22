@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Importeer CSV{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Importeer contacten</h1>
+<form method="post" enctype="multipart/form-data" class="space-y-4">
+  <div>
+    <input class="w-full" type="file" name="file" accept=".csv">
+  </div>
+  <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" type="submit">Importeren</button>
+</form>
+<a class="inline-block mt-4 text-blue-500 hover:underline" href="{{ url_for('main.index') }}">Terug</a>
+{% endblock %}
