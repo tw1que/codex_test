@@ -18,11 +18,10 @@ python run.py
 
 ## Gebruik
 
-Bezoek `http://localhost:8080` voor een lijst van contacten. Gebruik de knop **Nieuwe contact** om een contact toe te voegen. Elk contact heeft een naam, nummer en optioneel label. Bestaande contacten kun je via de link **Bewerk** aanpassen. Wijzigingen worden direct opgeslagen in `phonebook.xml`.
+Bezoek `http://localhost:8080` voor een lijst van contacten. Gebruik de knop **Nieuwe contact** om een contact toe te voegen. Elk contact heeft een naam en nummer. Bestaande contacten kun je via de link **Bewerk** aanpassen. Wijzigingen worden direct opgeslagen in `phonebook.xml`.
 
 Via de knop **Importeer CSV** kun je meerdere contacten ineens toevoegen. Upload
-een CSV-bestand met kolommen `name`, `telephone` en optioneel `label`. Alleen
-rijen met geldige waarden worden toegevoegd.
+een CSV-bestand met kolommen `name` en `telephone`. Alleen rijen met geldige waarden worden toegevoegd.
 
 ## Docker Deployment
 
