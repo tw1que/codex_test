@@ -18,11 +18,11 @@
   </svg>
 </div>
 
-<div id="contact-list" class="divide-y divide-gray-200 bg-white rounded-lg overflow-hidden border border-gray-100">
+  <div id="contact-list" class="divide-y divide-gray-200 bg-white rounded-lg overflow-hidden border border-gray-100">
   {% for c in contacts %}
   <div class="contact-item fade-slide flex items-center px-6 py-4" data-index="{{ loop.index0 }}">
-    <span class="flex-1 text-xl font-medium text-gray-900">{{ c.name }}</span>
-    <span class="text-xl text-gray-700 mr-6">{{ c.telephone }}</span>
+    <span class="contact-name flex-1 text-xl font-medium text-gray-900">{{ c.name }}</span>
+    <span class="contact-phone text-xl text-gray-700 mr-6">{{ c.telephone }}</span>
     <div class="flex items-center space-x-4">
       <a href="{{ url_for('main.edit', index=loop.index0) }}" class="text-sm text-blue-600 hover:underline">Bewerk</a>
       <form class="delete-form inline-flex items-center space-x-1" action="{{ url_for('main.delete', index=loop.index0) }}" method="post">
@@ -59,8 +59,9 @@ const searchInput = document.getElementById('search');
 searchInput.addEventListener('input', () => {
   const q = searchInput.value.toLowerCase();
   document.querySelectorAll('.contact-item').forEach(item => {
-    const text = item.textContent.toLowerCase();
-    item.classList.toggle('hidden', !text.includes(q));
+    const name = item.querySelector('.contact-name').textContent.toLowerCase();
+    const phone = item.querySelector('.contact-phone').textContent.toLowerCase();
+    item.classList.toggle('hidden', !(name.includes(q) || phone.includes(q)));
   });
 });
 
