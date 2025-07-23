@@ -15,12 +15,12 @@ def client():
 
 def test_add_and_delete(client):
     # add first contact
-    response = client.post('/add', data={'name': 'John', 'telephone': '+31 6 28330622', 'label': 'Kantoor'}, follow_redirects=True)
+    response = client.post('/add', data={'name': 'John', 'telephone': '+31 6 28330622'}, follow_redirects=True)
     assert response.status_code == 200
     assert b'John' in response.data
 
     # add second contact
-    response = client.post('/add', data={'name': 'Jane', 'telephone': '+31 6 11111111', 'label': ''}, follow_redirects=True)
+    response = client.post('/add', data={'name': 'Jane', 'telephone': '+31 6 11111111'}, follow_redirects=True)
     assert response.status_code == 200
     assert b'Jane' in response.data and b'John' in response.data
 
@@ -34,9 +34,9 @@ def test_add_and_delete(client):
 
 
 def test_edit_contact(client):
-    client.post('/add', data={'name': 'Jane', 'telephone': '+31 6 11111111', 'label': ''})
+    client.post('/add', data={'name': 'Jane', 'telephone': '+31 6 11111111'})
     # edit contact
-    response = client.post('/edit/0', data={'name': 'Janet', 'telephone': '+31 6 22222222', 'label': 'Priv'}, follow_redirects=True)
+    response = client.post('/edit/0', data={'name': 'Janet', 'telephone': '+31 6 22222222'}, follow_redirects=True)
     assert response.status_code == 200
     assert b'Janet' in response.data
 
@@ -48,7 +48,7 @@ def test_edit_out_of_range(client):
 
 
 def test_import_contacts(client):
-    csv_data = "name,telephone,label\nJohn,+31611111111,Kantoor\nJane,+31622222222,Priv"
+    csv_data = "name,telephone\nJohn,+31611111111\nJane,+31622222222"
     data = {
         'file': (io.BytesIO(csv_data.encode('utf-8')), 'contacts.csv'),
     }
@@ -76,7 +76,7 @@ def test_delete_out_of_range(client):
     assert b'Single' in response.data
 
 def test_import_with_invalid_rows(client):
-    csv_data = "name,telephone,label\nValid,+31611111111,Priv\nBad,abc,Priv\nAnother,+31622222222,Work"
+    csv_data = "name,telephone\nValid,+31611111111\nBad,abc\nAnother,+31622222222"
     data = {
         'file': (io.BytesIO(csv_data.encode('utf-8')), 'contacts.csv'),
     }

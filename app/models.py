@@ -14,13 +14,8 @@ def load_phonebook(path):
     for entry in root.findall('DirectoryEntry'):
         name = entry.findtext('Name')
         tel_elem = entry.find('Telephone')
-        if tel_elem is not None:
-            tel = tel_elem.text
-            label = tel_elem.get('label', '')
-        else:
-            tel = ''
-            label = ''
-        contacts.append({'name': name, 'telephone': tel, 'label': label})
+        tel = tel_elem.text if tel_elem is not None else ''
+        contacts.append({'name': name, 'telephone': tel})
     contacts.sort(key=lambda c: c['name'].lower())
     return contacts
 
@@ -32,16 +27,14 @@ def save_phonebook(path, contacts):
         entry = ET.SubElement(root, 'DirectoryEntry')
         ET.SubElement(entry, 'Name').text = c['name']
         tel = ET.SubElement(entry, 'Telephone')
-        if c.get('label'):
-            tel.set('label', c['label'])
         tel.text = c['telephone']
     tree = ET.ElementTree(root)
     tree.write(path, encoding='utf-8', xml_declaration=True)
 
 
-def add_contact(path, name, telephone, label=''):
+def add_contact(path, name, telephone):
     contacts = load_phonebook(path)
-    contacts.append({'name': name, 'telephone': telephone, 'label': label})
+    contacts.append({'name': name, 'telephone': telephone})
     save_phonebook(path, contacts)
 
 
@@ -54,14 +47,13 @@ def delete_contact(path, index):
     return False
 
 
-def update_contact(path, index, name, telephone, label=''):
+def update_contact(path, index, name, telephone):
     """Update an existing contact by index."""
     contacts = load_phonebook(path)
     if 0 <= index < len(contacts):
         contacts[index] = {
             'name': name,
             'telephone': telephone,
-            'label': label,
         }
         save_phonebook(path, contacts)
         return True
@@ -82,9 +74,8 @@ def import_contacts(path, fileobj, validator):
     for row in reader:
         name = row.get('name') or row.get('Name')
         telephone = row.get('telephone') or row.get('Telephone')
-        label = row.get('label') or row.get('Label') or ''
         if validator(name, telephone):
-            contacts.append({'name': name, 'telephone': telephone, 'label': label})
+            contacts.append({'name': name, 'telephone': telephone})
             added += 1
     if added:
         save_phonebook(path, contacts)

@@ -16,9 +16,8 @@ def add():
     if request.method == 'POST':
         name = request.form.get('name')
         telephone = request.form.get('telephone')
-        label = request.form.get('label', '')
         if validate_contact(name, telephone):
-            add_contact(current_app.config['PHONEBOOK_PATH'], name, telephone, label)
+            add_contact(current_app.config['PHONEBOOK_PATH'], name, telephone)
             return redirect(url_for('main.index'))
     return render_template('add.html')
 
@@ -41,9 +40,8 @@ def edit(index):
     if request.method == 'POST':
         name = request.form.get('name')
         telephone = request.form.get('telephone')
-        label = request.form.get('label', '')
         if validate_contact(name, telephone):
-            update_contact(current_app.config['PHONEBOOK_PATH'], index, name, telephone, label)
+            update_contact(current_app.config['PHONEBOOK_PATH'], index, name, telephone)
             return redirect(url_for('main.index'))
     contact = contacts[index]
     return render_template('edit.html', contact=contact, index=index)

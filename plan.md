@@ -6,7 +6,7 @@ Dit project voorziet in een **centrale beheeromgeving** voor je Yealink XML-tele
 
 ## Uitgangspunt
 
-* **Yealink XML-structuur**: de telefoons verwachten een XML waarbij elke contact entry een `<DirectoryEntry>` is met `<Name>` en één of meer `<Telephone label="...">` elementen.
+* **Yealink XML-structuur**: de telefoons verwachten een XML waarbij elke contact entry een `<DirectoryEntry>` is met `<Name>` en één of meer `<Telephone>` elementen.
 * **Decentrale configuratie**: zonder handmatig uploaden van XML-bestanden op je provisioning-server wil je via één centrale applicatie de data beheren.
 * **Synology/Docker omgeving**: de beheer-UI en XML-serve logica draait in een Docker-container (bijv. op een Synology NAS), eenvoudig te deployen via Portainer.
 
@@ -30,7 +30,7 @@ Dit project voorziet in een **centrale beheeromgeving** voor je Yealink XML-tele
      <YealinkIPPhoneDirectory>
        <DirectoryEntry>
          <Name>...</Name>
-         <Telephone label="Kantoor">...</Telephone>
+        <Telephone>...</Telephone>
          <!-- Extra nummers -->
        </DirectoryEntry>
        <!-- Meer entries -->
