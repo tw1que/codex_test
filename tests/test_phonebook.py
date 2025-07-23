@@ -1,5 +1,6 @@
 import os
 import tempfile
+import io
 import pytest
 from app import create_app
 from app.models import load_phonebook
@@ -49,9 +50,9 @@ def test_edit_out_of_range(client):
 def test_import_contacts(client):
     csv_data = "name,telephone,label\nJohn,+31611111111,Kantoor\nJane,+31622222222,Priv"
     data = {
-        'file': (csv_data.encode('utf-8'), 'contacts.csv'),
+        'file': (io.BytesIO(csv_data.encode('utf-8')), 'contacts.csv'),
     }
-    response = client.post('/import', data=data, content_type='multipart/form-data', follow_redirects=True)
+    response = client.post('/import', data=data, follow_redirects=True)
     assert response.status_code == 200
     assert b'John' in response.data and b'Jane' in response.data
 
@@ -77,9 +78,9 @@ def test_delete_out_of_range(client):
 def test_import_with_invalid_rows(client):
     csv_data = "name,telephone,label\nValid,+31611111111,Priv\nBad,abc,Priv\nAnother,+31622222222,Work"
     data = {
-        'file': (csv_data.encode('utf-8'), 'contacts.csv'),
+        'file': (io.BytesIO(csv_data.encode('utf-8')), 'contacts.csv'),
     }
-    response = client.post('/import', data=data, content_type='multipart/form-data', follow_redirects=True)
+    response = client.post('/import', data=data, follow_redirects=True)
     assert response.status_code == 200
     # only valid rows should be imported
     assert b'Valid' in response.data and b'Another' in response.data
