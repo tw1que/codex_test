@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app, render_template, request, redirect, url_for, abort, flash
+from flask import Blueprint, current_app, render_template, request, redirect, url_for, abort, flash, jsonify
 from io import TextIOWrapper
 from .models import load_phonebook, add_contact, delete_contact, update_contact, import_contacts
 from .utils import validate_contact
@@ -23,10 +23,14 @@ def add():
     return render_template('add.html')
 
 
-@main_bp.route('/delete/<int:index>', methods=['POST'])
+@main_bp.route('/delete/<int:index>', methods=['POST', 'DELETE'])
 def delete(index):
-    delete_contact(current_app.config['PHONEBOOK_PATH'], index)
-    return redirect(url_for('main.index'))
+    success = delete_contact(current_app.config['PHONEBOOK_PATH'], index)
+    if request.method == 'POST':
+        return redirect(url_for('main.index'))
+    if success:
+        return ('', 204)
+    return jsonify({'error': 'Not found'}), 404
 
 
 @main_bp.route('/edit/<int:index>', methods=['GET', 'POST'])
