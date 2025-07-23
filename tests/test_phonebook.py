@@ -2,6 +2,7 @@ import os
 import tempfile
 import io
 import pytest
+from bs4 import BeautifulSoup
 from app import create_app
 from app.models import load_phonebook
 
@@ -102,3 +103,22 @@ def test_delete_via_delete_method(client):
     assert response.status_code == 204
     contacts_after = load_phonebook(path)
     assert len(contacts_after) == len(contacts) - 1
+
+
+def _search_items(html, query):
+    soup = BeautifulSoup(html, 'html.parser')
+    results = []
+    for item in soup.select('.contact-item'):
+        name = item.select_one('.contact-name').get_text().lower()
+        phone = item.select_one('.contact-phone').get_text().lower()
+        if query in name or query in phone:
+            results.append(item)
+    return results
+
+
+def test_search_ignores_action_text(client):
+    client.post('/add', data={'name': 'Anne', 'telephone': '+31611111111'})
+    client.post('/add', data={'name': 'Eve', 'telephone': '+31622222222'})
+    resp = client.get('/')
+    matches = _search_items(resp.data.decode('utf-8'), 'b')
+    assert len(matches) == 0
