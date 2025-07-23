@@ -3,33 +3,64 @@
 {% block title %}Telefoonboek{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Contacten</h1>
-<div class="space-x-2">
-  <a class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" href="{{ url_for('main.add') }}">Nieuwe contact</a>
-  <a class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" href="{{ url_for('main.import_view') }}">Importeer CSV</a>
-</div>
-<ul class="mt-4 space-y-2">
+<header class="flex justify-between items-center mb-4">
+  <h1 class="text-2xl font-bold">Contacten</h1>
+  <nav class="space-x-2">
+    <a class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" href="{{ url_for('main.add') }}">Nieuw contact</a>
+    <a class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" href="{{ url_for('main.import_view') }}">Importeer CSV</a>
+  </nav>
+</header>
+
+<ul id="contact-list" class="space-y-2">
   {% for c in contacts %}
-  <li id="contact-{{ loop.index0 }}" class="flex justify-between items-center bg-white p-2 rounded shadow">
+  <li data-index="{{ loop.index0 }}" class="fade-slide flex justify-between items-center bg-white p-2 rounded shadow">
     <span>{{ c.name }} - {{ c.telephone }}{% if c.label %} ({{ c.label }}){% endif %}</span>
-    <div>
-      <a class="text-blue-500 hover:underline mr-2" href="{{ url_for('main.edit', index=loop.index0) }}">Bewerk</a>
-      <form class="inline delete-form" action="{{ url_for('main.delete', index=loop.index0) }}" method="post">
-          <button class="text-red-600 hover:underline" type="submit">Verwijder</button>
+    <div class="flex items-center space-x-2">
+      <a class="text-blue-500 hover:underline" href="{{ url_for('main.edit', index=loop.index0) }}">✎</a>
+      <form class="delete-form inline" action="{{ url_for('main.delete', index=loop.index0) }}" method="post">
+        <button type="button" class="delete-btn text-red-600">🗑️</button>
+        <button type="button" class="cancel-btn hidden text-gray-600">✕</button>
       </form>
     </div>
   </li>
   {% endfor %}
 </ul>
+
+<style>
+  .fade-slide {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .fade-slide.removing {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+  .confirming .cancel-btn {
+    display: inline-block;
+  }
+</style>
+
 <script>
 document.querySelectorAll('.delete-form').forEach(form => {
-  form.addEventListener('submit', async ev => {
-    ev.preventDefault();
-    if (!confirm('Weet je zeker dat je deze wilt verwijderen?')) return;
+  const li = form.closest('li');
+  const delBtn = form.querySelector('.delete-btn');
+  const cancelBtn = form.querySelector('.cancel-btn');
+
+  delBtn.addEventListener('click', async () => {
+    if (!li.classList.contains('confirming')) {
+      li.classList.add('confirming');
+      cancelBtn.classList.remove('hidden');
+      return;
+    }
     const resp = await fetch(form.action, {method: 'DELETE'});
     if (resp.ok) {
-      form.closest('li').remove();
+      li.classList.add('removing');
+      setTimeout(() => li.remove(), 300);
     }
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    li.classList.remove('confirming');
+    cancelBtn.classList.add('hidden');
   });
 });
 </script>
