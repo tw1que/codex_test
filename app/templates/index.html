@@ -11,6 +11,10 @@
   </div>
 </div>
 
+<div class="mb-4">
+  <input id="search" type="text" placeholder="Zoeken..." class="w-full border p-2 rounded" />
+</div>
+
 <div id="contact-list" class="divide-y divide-gray-200 bg-white rounded-lg overflow-hidden border border-gray-100">
   {% for c in contacts %}
   <div class="contact-item fade-slide flex items-center px-6 py-4" data-index="{{ loop.index0 }}">
@@ -48,6 +52,15 @@
 </style>
 
 <script>
+const searchInput = document.getElementById('search');
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.toLowerCase();
+  document.querySelectorAll('.contact-item').forEach(item => {
+    const text = item.textContent.toLowerCase();
+    item.classList.toggle('hidden', !text.includes(q));
+  });
+});
+
 document.querySelectorAll('.delete-form').forEach(form => {
   const item = form.closest('.contact-item');
   const delBtn = form.querySelector('.delete-btn');
