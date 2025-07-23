@@ -90,3 +90,14 @@ def test_health_endpoint(client):
     response = client.get('/health')
     assert response.status_code == 200
     assert response.data == b'OK'
+
+
+def test_delete_via_delete_method(client):
+    client.post('/add', data={'name': 'Temp', 'telephone': '+31 6 99999999'})
+    path = client.application.config['PHONEBOOK_PATH']
+    contacts = load_phonebook(path)
+    index = next(i for i, c in enumerate(contacts) if c['name'] == 'Temp')
+    response = client.delete(f'/delete/{index}')
+    assert response.status_code == 204
+    contacts_after = load_phonebook(path)
+    assert len(contacts_after) == len(contacts) - 1
