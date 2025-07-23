@@ -14,7 +14,7 @@
     <span>{{ c.name }} - {{ c.telephone }}{% if c.label %} ({{ c.label }}){% endif %}</span>
     <div>
       <a class="text-blue-500 hover:underline mr-2" href="{{ url_for('main.edit', index=loop.index0) }}">Bewerk</a>
-      <form class="inline" action="{{ url_for('main.delete', index=loop.index0) }}" method="post">
+      <form class="inline" action="{{ url_for('main.delete', index=loop.index0) }}" method="post" onsubmit="return confirm('Weet je zeker dat je deze wilt verwijderen?');">
           <button class="text-red-600 hover:underline" type="submit">Verwijder</button>
       </form>
     </div>
