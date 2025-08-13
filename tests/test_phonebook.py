@@ -1,15 +1,22 @@
 import os
+import sys
 import tempfile
 import io
 import pytest
+import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
+
+# Ensure the application package is importable when tests are run directly
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from app import create_app
 from app.models import load_phonebook
 
 @pytest.fixture
 def client():
     tmpdir = tempfile.TemporaryDirectory()
-    app = create_app({'TESTING': True, 'PHONEBOOK_PATH': os.path.join(tmpdir.name, 'pb.xml'), 'SECRET_KEY': 'test'})
+    db_path = os.path.join(tmpdir.name, 'pb.sqlite')
+    app = create_app({'TESTING': True, 'SQLALCHEMY_DATABASE_URI': f'sqlite:///{db_path}', 'SECRET_KEY': 'test'})
     with app.test_client() as client:
         yield client
     tmpdir.cleanup()
@@ -26,8 +33,7 @@ def test_add_and_delete(client):
     assert b'Jane' in response.data and b'John' in response.data
 
     # delete contact "Jane" by finding its sorted index
-    path = client.application.config['PHONEBOOK_PATH']
-    contacts = load_phonebook(path)
+    contacts = load_phonebook()
     jane_index = next(i for i, c in enumerate(contacts) if c['name'] == 'Jane')
     response = client.post(f'/delete/{jane_index}', follow_redirects=True)
     assert b'Jane' not in response.data
@@ -114,12 +120,11 @@ def test_health_endpoint(client):
 
 def test_delete_via_delete_method(client):
     client.post('/add', data={'name': 'Temp', 'telephone': '+31 6 99999999'})
-    path = client.application.config['PHONEBOOK_PATH']
-    contacts = load_phonebook(path)
+    contacts = load_phonebook()
     index = next(i for i, c in enumerate(contacts) if c['name'] == 'Temp')
     response = client.delete(f'/delete/{index}')
     assert response.status_code == 204
-    contacts_after = load_phonebook(path)
+    contacts_after = load_phonebook()
     assert len(contacts_after) == len(contacts) - 1
 
 
@@ -149,4 +154,6 @@ def test_phonebook_xml(client):
     response = client.get('/phonebook.xml')
     assert response.status_code == 200
     assert response.headers['Content-Type'].startswith('application/xml')
-    assert b'<YealinkIPPhoneDirectory>' in response.data
+    root = ET.fromstring(response.data)
+    entries = root.findall('DirectoryEntry')
+    assert any(e.findtext('Name') == 'Bob' and e.findtext('Telephone') == '+31612345678' for e in entries)

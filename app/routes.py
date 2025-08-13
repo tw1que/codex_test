@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app, render_template, request, redirect, url_for, abort, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, abort, flash, jsonify
 from io import TextIOWrapper
 from .models import load_phonebook, add_contact, delete_contact, update_contact, import_contacts
 from .utils import validate_contact
@@ -7,7 +7,7 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():
-    contacts = load_phonebook(current_app.config['PHONEBOOK_PATH'])
+    contacts = load_phonebook()
     return render_template('index.html', contacts=contacts)
 
 
@@ -17,14 +17,14 @@ def add():
         name = request.form.get('name')
         telephone = request.form.get('telephone')
         if validate_contact(name, telephone):
-            add_contact(current_app.config['PHONEBOOK_PATH'], name, telephone)
+            add_contact(name, telephone)
             return redirect(url_for('main.index'))
     return render_template('add.html')
 
 
 @main_bp.route('/delete/<int:index>', methods=['POST', 'DELETE'])
 def delete(index):
-    success = delete_contact(current_app.config['PHONEBOOK_PATH'], index)
+    success = delete_contact(index)
     if request.method == 'POST':
         return redirect(url_for('main.index'))
     if success:
@@ -34,14 +34,14 @@ def delete(index):
 
 @main_bp.route('/edit/<int:index>', methods=['GET', 'POST'])
 def edit(index):
-    contacts = load_phonebook(current_app.config['PHONEBOOK_PATH'])
+    contacts = load_phonebook()
     if not (0 <= index < len(contacts)):
         abort(404)
     if request.method == 'POST':
         name = request.form.get('name')
         telephone = request.form.get('telephone')
         if validate_contact(name, telephone):
-            update_contact(current_app.config['PHONEBOOK_PATH'], index, name, telephone)
+            update_contact(index, name, telephone)
             return redirect(url_for('main.index'))
     contact = contacts[index]
     return render_template('edit.html', contact=contact, index=index)
@@ -53,9 +53,7 @@ def import_view():
         file = request.files.get('file')
         if file:
             text_file = TextIOWrapper(file.stream, encoding='utf-8')
-            count = import_contacts(
-                current_app.config['PHONEBOOK_PATH'], text_file, validate_contact
-            )
+            count = import_contacts(text_file, validate_contact)
             if count:
                 flash(f"{count} contacten ge\u00efmporteerd.", "info")
             return redirect(url_for('main.index'))
