@@ -54,3 +54,7 @@ Je kunt dit ook combineren met de meegeleverde Makefile:
 ```bash
 make test
 ```
+
+## Licentie
+
+Deze software is beschikbaar onder de MIT-licentie. Zie [LICENSE](LICENSE) voor details.
