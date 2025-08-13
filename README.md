@@ -51,3 +51,7 @@ Je kunt de stappen ook handmatig uitvoeren:
 pip install -r requirements.txt
 python -m pytest
 ```
+
+## Licentie
+
+Deze software is beschikbaar onder de MIT-licentie. Zie [LICENSE](LICENSE) voor details.
