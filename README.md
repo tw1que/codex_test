@@ -37,20 +37,17 @@ Dit is gemakkelijk te deployen via Portainer of de CLI op een Synology NAS.
 ## Tests
 
 
-Voordat je de tests uitvoert moet je eerst de Python-afhankelijkheden installeren:
-
-```bash
-pip install -r requirements.txt
-```
-
-Pytest-tests controleren de logica voor het toevoegen en verwijderen van contacten.
-
-```bash
-pytest
-```
-
-Je kunt dit ook combineren met de meegeleverde Makefile:
+De makkelijkste manier om de test-suite uit te voeren is via de Makefile:
 
 ```bash
 make test
+```
+
+Dit commando installeert automatisch de vereisten uit `requirements.txt` en draait daarna alle tests.
+
+Je kunt de stappen ook handmatig uitvoeren:
+
+```bash
+pip install -r requirements.txt
+python -m pytest
 ```
