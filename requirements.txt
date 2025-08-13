@@ -2,3 +2,4 @@ Flask>=2.0
 Gunicorn
 pytest
 beautifulsoup4
+SQLAlchemy

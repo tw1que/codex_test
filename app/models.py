@@ -1,82 +1,79 @@
-import xml.etree.ElementTree as ET
-from pathlib import Path
+from flask import current_app
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import declarative_base
+import csv
+
+Base = declarative_base()
 
 
-def load_phonebook(path):
-    path = Path(path)
-    if not path.exists():
-        root = ET.Element('YealinkIPPhoneDirectory')
-        tree = ET.ElementTree(root)
-        tree.write(path, encoding='utf-8', xml_declaration=True)
-    tree = ET.parse(path)
-    root = tree.getroot()
-    contacts = []
-    for entry in root.findall('DirectoryEntry'):
-        name = entry.findtext('Name')
-        tel_elem = entry.find('Telephone')
-        tel = tel_elem.text if tel_elem is not None else ''
-        contacts.append({'name': name, 'telephone': tel})
-    contacts.sort(key=lambda c: c['name'].lower())
-    return contacts
+class Contact(Base):
+    __tablename__ = 'contacts'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    telephone = Column(String, nullable=False)
 
 
-def save_phonebook(path, contacts):
-    contacts_sorted = sorted(contacts, key=lambda c: c['name'].lower())
-    root = ET.Element('YealinkIPPhoneDirectory')
-    for c in contacts_sorted:
-        entry = ET.SubElement(root, 'DirectoryEntry')
-        ET.SubElement(entry, 'Name').text = c['name']
-        tel = ET.SubElement(entry, 'Telephone')
-        tel.text = c['telephone']
-    tree = ET.ElementTree(root)
-    tree.write(path, encoding='utf-8', xml_declaration=True)
+def _get_session():
+    """Return a new SQLAlchemy session using the app's session factory."""
+    Session = current_app.config['SESSION_FACTORY']
+    return Session()
 
 
-def add_contact(path, name, telephone):
-    contacts = load_phonebook(path)
-    contacts.append({'name': name, 'telephone': telephone})
-    save_phonebook(path, contacts)
+def load_phonebook():
+    """Return all contacts ordered by name as a list of dicts."""
+    session = _get_session()
+    contacts = session.query(Contact).order_by(Contact.name).all()
+    result = [{'name': c.name, 'telephone': c.telephone} for c in contacts]
+    session.close()
+    return result
 
 
-def delete_contact(path, index):
-    contacts = load_phonebook(path)
+def add_contact(name, telephone):
+    session = _get_session()
+    session.add(Contact(name=name, telephone=telephone))
+    session.commit()
+    session.close()
+
+
+def delete_contact(index):
+    session = _get_session()
+    contacts = session.query(Contact).order_by(Contact.name).all()
     if 0 <= index < len(contacts):
-        contacts.pop(index)
-        save_phonebook(path, contacts)
+        session.delete(contacts[index])
+        session.commit()
+        session.close()
         return True
+    session.close()
     return False
 
 
-def update_contact(path, index, name, telephone):
-    """Update an existing contact by index."""
-    contacts = load_phonebook(path)
+def update_contact(index, name, telephone):
+    session = _get_session()
+    contacts = session.query(Contact).order_by(Contact.name).all()
     if 0 <= index < len(contacts):
-        contacts[index] = {
-            'name': name,
-            'telephone': telephone,
-        }
-        save_phonebook(path, contacts)
+        contact = contacts[index]
+        contact.name = name
+        contact.telephone = telephone
+        session.commit()
+        session.close()
         return True
+    session.close()
     return False
 
 
-def import_contacts(path, fileobj, validator):
-    """Import contacts from a CSV ``fileobj``.
-
-    ``validator`` is a callable like :func:`validate_contact` used to validate
-    each row. Only valid contacts are appended. The function returns the number
-    of successfully imported contacts.
-    """
-    import csv
-    contacts = load_phonebook(path)
+def import_contacts(fileobj, validator):
+    session = _get_session()
     reader = csv.DictReader(fileobj)
     added = 0
     for row in reader:
         name = row.get('name') or row.get('Name')
         telephone = row.get('telephone') or row.get('Telephone')
         if validator(name, telephone):
-            contacts.append({'name': name, 'telephone': telephone})
+            session.add(Contact(name=name, telephone=telephone))
             added += 1
     if added:
-        save_phonebook(path, contacts)
+        session.commit()
+    else:
+        session.rollback()
+    session.close()
     return added
