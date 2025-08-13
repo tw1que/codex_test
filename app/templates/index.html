@@ -20,12 +20,12 @@
 
   <div id="contact-list" class="divide-y divide-gray-200 bg-white rounded-lg overflow-hidden border border-gray-100">
   {% for c in contacts %}
-  <div class="contact-item fade-slide flex items-center px-6 py-4" data-index="{{ loop.index0 }}">
+  <div class="contact-item fade-slide flex items-center px-6 py-4" data-id="{{ c.id }}">
     <span class="contact-name flex-1 text-xl font-medium text-gray-900">{{ c.name }}</span>
     <span class="contact-phone text-xl text-gray-700 mr-6">{{ c.telephone }}</span>
     <div class="flex items-center space-x-4">
-      <a href="{{ url_for('main.edit', index=loop.index0) }}" class="text-sm text-blue-600 hover:underline">Bewerk</a>
-      <form class="delete-form inline-flex items-center space-x-1" action="{{ url_for('main.delete', index=loop.index0) }}" method="post">
+      <a href="{{ url_for('main.edit', contact_id=c.id) }}" class="text-sm text-blue-600 hover:underline">Bewerk</a>
+      <form class="delete-form inline-flex items-center space-x-1" action="{{ url_for('main.delete', contact_id=c.id) }}" method="post">
 
         <svg class="delete-btn icon-btn text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" title="Verwijder">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M8 7V4a1 1 0 011-1h6a1 1 0 011 1v3" />
