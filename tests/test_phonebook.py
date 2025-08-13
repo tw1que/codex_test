@@ -123,11 +123,12 @@ def test_search_ignores_action_text(client):
     matches = _search_items(resp.data.decode('utf-8'), 'b')
     assert len(matches) == 0
 
-
-def test_phonebook_xml_endpoint(client):
-    path = client.application.config['PHONEBOOK_PATH']
-    load_phonebook(path)
+def test_phonebook_xml(client):
+    """Ensure the phonebook XML is served correctly."""
+    # create at least one contact so the XML has a root element
+    client.post('/add', data={'name': 'Bob', 'telephone': '+31612345678'})
     response = client.get('/phonebook.xml')
     assert response.status_code == 200
     assert response.headers['Content-Type'].startswith('application/xml')
-    assert b'<YealinkIPPhoneDirectory' in response.data
+    assert b'<YealinkIPPhoneDirectory>' in response.data
+
