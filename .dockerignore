@@ -1,21 +1,12 @@
-# Git repository
-.git/
+# Exclude test and version control directories
+.git
 .gitignore
-
-# Python artifacts
-__pycache__/
-*.py[cod]
-*$py.class
-.pytest_cache/
-
-# Tests
 tests/
 
-# Other unnecessary files
-phonebook.xml
-docker-compose.yml
-Makefile
-*.md
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment files
 .env
-*.log
-*.tmp
+docker-compose.yml
