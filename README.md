@@ -54,3 +54,20 @@ Je kunt dit ook combineren met de meegeleverde Makefile:
 ```bash
 make test
 ```
+
+## Linting
+
+Controleer de code stijl met [Flake8](https://flake8.pycqa.org). Installeer
+indien nodig eerst de tool:
+
+```bash
+pip install flake8
+```
+
+Voer daarna de linting uit:
+
+```bash
+flake8
+```
+
+De maximale regellengte is ingesteld op 79 tekens.
