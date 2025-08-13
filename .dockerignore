@@ -1,0 +1,21 @@
+# Git repository
+.git/
+.gitignore
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Tests
+tests/
+
+# Other unnecessary files
+phonebook.xml
+docker-compose.yml
+Makefile
+*.md
+.env
+*.log
+*.tmp
