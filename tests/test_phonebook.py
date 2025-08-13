@@ -122,3 +122,12 @@ def test_search_ignores_action_text(client):
     resp = client.get('/')
     matches = _search_items(resp.data.decode('utf-8'), 'b')
     assert len(matches) == 0
+
+
+def test_phonebook_xml_endpoint(client):
+    path = client.application.config['PHONEBOOK_PATH']
+    load_phonebook(path)
+    response = client.get('/phonebook.xml')
+    assert response.status_code == 200
+    assert response.headers['Content-Type'].startswith('application/xml')
+    assert b'<YealinkIPPhoneDirectory' in response.data
