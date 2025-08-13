@@ -67,6 +67,24 @@ def test_invalid_add_contact(client):
     response = client.get('/')
     assert b'abc' not in response.data
 
+
+def test_flash_message_styling(client):
+    # trigger error flash
+    resp = client.post('/import', data={}, follow_redirects=True)
+    soup = BeautifulSoup(resp.data, 'html.parser')
+    li = soup.select_one('ul li')
+    assert 'text-red-600' in li.get('class', [])
+
+    # trigger info flash
+    csv_data = "name,telephone\nJohn,+31611111111"
+    data = {
+        'file': (io.BytesIO(csv_data.encode('utf-8')), 'contacts.csv'),
+    }
+    resp = client.post('/import', data=data, follow_redirects=True)
+    soup = BeautifulSoup(resp.data, 'html.parser')
+    li = soup.select_one('ul li')
+    assert 'text-green-600' in li.get('class', [])
+
 def test_delete_out_of_range(client):
     # add one valid contact
     client.post('/add', data={'name': 'Single', 'telephone': '+31 6 00000000'})

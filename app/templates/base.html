@@ -10,8 +10,14 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
       <ul class="mb-4">
+        {% set classes = {
+          'info': 'text-green-600',
+          'error': 'text-red-600',
+          'warning': 'text-yellow-600',
+          'success': 'text-green-600'
+        } %}
         {% for category, message in messages %}
-        <li class="text-red-600">{{ message }}</li>
+        <li class="{{ classes.get(category, 'text-red-600') }}">{{ message }}</li>
         {% endfor %}
       </ul>
       {% endif %}
