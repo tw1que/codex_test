@@ -3,7 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install system dependencies needed for health checks.
-# TODO: Consider installing curl only in a dedicated healthcheck container or using a lighter alternative.
+# See TODO.md: Evaluate lighter health-check tooling to avoid installing curl in production images.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
