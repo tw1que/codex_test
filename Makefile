@@ -2,4 +2,4 @@
 
 test:
 	pip install -r requirements.txt
-	pytest
+	python -m pytest
