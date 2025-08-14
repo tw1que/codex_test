@@ -22,6 +22,7 @@
   {% for c in contacts %}
   <div class="contact-item fade-slide flex items-center px-6 py-4" data-index="{{ loop.index0 }}">
     <span class="contact-name flex-1 text-xl font-medium text-gray-900">{{ c.name }}</span>
+    <span class="contact-category text-sm text-gray-500 mr-4">{{ c.category }}</span>
     <span class="contact-phone text-xl text-gray-700 mr-6">{{ c.telephone }}</span>
     <div class="flex items-center space-x-4">
       <a href="{{ url_for('main.edit', index=loop.index0) }}" class="text-sm text-blue-600 hover:underline">Bewerk</a>

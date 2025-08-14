@@ -1,6 +1,6 @@
 # Yealink Phonebook Server
 
-Deze applicatie biedt een webinterface om een Yealink telefoonboek te beheren. De gegevens worden opgeslagen in een SQLite-database; de Yealink-XML-bestanden zijn slechts een export van deze database. De gebruikersinterface is opgezet met **Tailwind CSS** voor een moderne uitstraling zonder extra build-stap.
+Deze applicatie biedt een webinterface om een Yealink telefoonboek te beheren. De SQLite-database is de enige bron van waarheid; hieruit worden Yealink XML-bestanden, CSV en VCF on‑demand gegenereerd. De gebruikersinterface is opgezet met **Tailwind CSS** voor een moderne uitstraling zonder extra build-stap.
 
 ## Installatie
 
@@ -20,19 +20,33 @@ python run.py
 
 Bezoek `http://localhost:8080` voor een lijst van contacten. Gebruik de knop **Nieuwe contact** om een contact toe te voegen. Elk contact heeft een naam en nummer. Bestaande contacten kun je via de link **Bewerk** aanpassen. Wijzigingen worden direct in de database opgeslagen en de XML-exports worden automatisch hieruit gegenereerd.
 
-Via de knop **Importeer CSV** kun je meerdere contacten ineens toevoegen. Upload
-een CSV-bestand met kolommen `name` en `telephone`. Alleen rijen met geldige waarden worden toegevoegd.
+Via de knop **Importeer CSV** kun je meerdere contacten ineens toevoegen. Upload een CSV-bestand met kolommen `name` en `telephone`. Alleen rijen met geldige waarden worden toegevoegd. Elk contact kan een categorie hebben: `practice`, `supplier` of `other`.
+
+### JSON API
+
+Een simpele JSON API is beschikbaar onder `/api/contacts`:
+
+* `GET /api/contacts` – lijst van contacten gesorteerd op naam
+* `POST /api/contacts` – maak een nieuw contact (`name`, `telephone`, optioneel `category`)
+* `PUT /api/contacts/<id>` – update bestaand contact
+* `DELETE /api/contacts/<id>` – verwijder contact
+
+### Export
+
+Naast de Yealink XML is er export naar CSV en VCF:
+
+* `GET /export/contacts.csv`
+* `GET /export/contacts.vcf`
 
 ## Docker Deployment
 
-De meegeleverde `Dockerfile` bouwt een image dat via Gunicorn op poort 8080 draait. Build en start bijvoorbeeld met:
+Gebruik de meegeleverde `docker-compose.yml` om de database te bewaren op een volume en een Python-based healthcheck te gebruiken:
 
 ```bash
-docker build -t phonebook .
-docker run -p 8080:8080 phonebook
+docker compose up --build
 ```
 
-Dit is gemakkelijk te deployen via Portainer of de CLI op een Synology NAS.
+De compose-file mount `./data` als volume zodat `phonebook.db` bewaard blijft tussen container herstarts. Voor een eenmalige import kan een legacy Yealink XML worden gemount en het pad via `INITIAL_PHONEBOOK_XML` worden doorgegeven.
 
 ## Tests
 
