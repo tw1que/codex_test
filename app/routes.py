@@ -1,6 +1,13 @@
 from flask import Blueprint, render_template, request, redirect, url_for, abort, flash, jsonify
 from io import TextIOWrapper
-from .models import load_phonebook, add_contact, delete_contact, update_contact, import_contacts
+from .models import (
+    load_phonebook,
+    add_contact,
+    delete_contact,
+    update_contact,
+    import_contacts,
+    import_contacts_xml,
+)
 from .utils import validate_contact
 
 main_bp = Blueprint('main', __name__)
@@ -66,8 +73,12 @@ def import_view():
     if request.method == 'POST':
         file = request.files.get('file')
         if file:
-            text_file = TextIOWrapper(file.stream, encoding='utf-8')
-            count = import_contacts(text_file, validate_contact)
+            text_file = TextIOWrapper(file.stream, encoding="utf-8")
+            filename = (file.filename or "").lower()
+            if filename.endswith(".xml"):
+                count = import_contacts_xml(text_file, validate_contact)
+            else:
+                count = import_contacts(text_file, validate_contact)
             if count:
                 flash(f"{count} contacten ge\u00efmporteerd.", "info")
             return redirect(url_for('main.index'))
