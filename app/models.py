@@ -215,17 +215,38 @@ def import_contacts(fileobj, validator, category='other'):
     return added
 
 
-def import_contacts_xml(fileobj, validator, category='other'):
+def import_contacts_xml(fileobj, validator, category="other"):
+    """Import contacts from Yealink XML files.
+
+    Supports the current ``YealinkIPPhoneDirectory`` export format as well as
+    the legacy ``YealinkIPPhoneBook`` structure previously used in this
+    project.  Other XML structures are ignored.
+    """
+
     session = _get_session()
     tree = ET.parse(fileobj)
     root = tree.getroot()
+
     added = 0
-    for entry in root.findall('DirectoryEntry'):
-        name = entry.findtext('Name')
-        telephone = entry.findtext('Telephone')
-        if validator(name, telephone):
-            session.add(Contact(name=name, telephone=telephone, category=category))
-            added += 1
+
+    # Modern format: <YealinkIPPhoneDirectory><DirectoryEntry>...</DirectoryEntry></YealinkIPPhoneDirectory>
+    entries = root.findall("DirectoryEntry")
+    if entries:
+        for entry in entries:
+            name = entry.findtext("Name")
+            telephone = entry.findtext("Telephone")
+            if validator(name, telephone):
+                session.add(Contact(name=name, telephone=telephone, category=category))
+                added += 1
+    else:
+        # Legacy format: <YealinkIPPhoneBook><Directory><Unit Name=".." Phone1=".."/></Directory></YealinkIPPhoneBook>
+        for unit in root.findall("./Directory/Unit"):
+            name = unit.attrib.get("Name")
+            telephone = unit.attrib.get("Phone1")
+            if validator(name, telephone):
+                session.add(Contact(name=name, telephone=telephone, category=category))
+                added += 1
+
     if added:
         session.commit()
     else:
