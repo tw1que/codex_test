@@ -10,6 +10,7 @@ services:
       # - ./phonebook.xml:/app/phonebook.xml
     environment:
       - SQLALCHEMY_DATABASE_URI=sqlite:////app/data/phonebook.db
+      - PYTHONPATH=/app
       # Optional one-time import path
       - INITIAL_PHONEBOOK_XML=/app/phonebook.xml
     healthcheck:
