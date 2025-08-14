@@ -157,3 +157,27 @@ def test_phonebook_xml(client):
     root = ET.fromstring(response.data)
     entries = root.findall('DirectoryEntry')
     assert any(e.findtext('Name') == 'Bob' and e.findtext('Telephone') == '+31612345678' for e in entries)
+
+
+def test_auto_import(tmp_path):
+    """Database should auto-import contacts from an initial XML file."""
+    xml_content = (
+        "<?xml version='1.0' encoding='UTF-8'?>"\
+        "<YealinkIPPhoneDirectory>"\
+        "<DirectoryEntry><Name>Alice</Name><Telephone>+31611111111"\
+        "</Telephone></DirectoryEntry>"\
+        "</YealinkIPPhoneDirectory>"
+    )
+    xml_file = tmp_path / "phonebook.xml"
+    xml_file.write_text(xml_content, encoding="utf-8")
+    db_path = tmp_path / "pb.sqlite"
+    app = create_app({
+        'TESTING': True,
+        'SQLALCHEMY_DATABASE_URI': f'sqlite:///{db_path}',
+        'INITIAL_PHONEBOOK_XML': str(xml_file),
+        'SECRET_KEY': 'test'
+    })
+    with app.app_context():
+        contacts = load_phonebook()
+    assert len(contacts) == 1
+    assert contacts[0]['name'] == 'Alice'
