@@ -1,6 +1,6 @@
 from flask import current_app
-from sqlalchemy import Column, Integer, String, Boolean
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy.orm import declarative_base, relationship
 import csv
 import xml.etree.ElementTree as ET
 
@@ -14,6 +14,115 @@ class Contact(Base):
     telephone = Column(String, nullable=False)
     category = Column(String, nullable=False, default='other')
     active = Column(Boolean, nullable=False, default=True)
+
+
+# ---------------------------------------------------------------------------
+# New models for a flexible contact database used by the dental lab.  These
+# models are intentionally kept simple but illustrate how the schema can grow
+# beyond the original single ``Contact`` table.  The ``Order`` entity mentioned
+# in the requirements can later reference ``Practice``, ``Supplier`` and
+# ``ContactPerson`` using foreign keys similar to those used below.
+
+
+class Address(Base):
+    """Generic postal address that can be linked to practices or suppliers."""
+
+    __tablename__ = 'addresses'
+    id = Column(Integer, primary_key=True)
+    street = Column(String)
+    number = Column(String)
+    postal_code = Column(String)
+    city = Column(String)
+    country = Column(String)
+
+
+class Practice(Base):
+    """Dental practice that sends work to the lab."""
+
+    __tablename__ = 'practices'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    email = Column(String)
+    address_id = Column(Integer, ForeignKey('addresses.id'))
+
+    address = relationship('Address')
+    phone_numbers = relationship('PhoneNumber', back_populates='practice')
+    contacts = relationship('PracticeContact', back_populates='practice', cascade='all, delete-orphan')
+    contact_persons = relationship('ContactPerson', secondary='practice_contacts', viewonly=True, back_populates='practices')
+
+
+class Supplier(Base):
+    """External supplier of materials or services."""
+
+    __tablename__ = 'suppliers'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    email = Column(String)
+    address_id = Column(Integer, ForeignKey('addresses.id'))
+
+    address = relationship('Address')
+    phone_numbers = relationship('PhoneNumber', back_populates='supplier')
+    contacts = relationship('SupplierContact', back_populates='supplier', cascade='all, delete-orphan')
+    contact_persons = relationship('ContactPerson', secondary='supplier_contacts', viewonly=True, back_populates='suppliers')
+
+
+class ContactPerson(Base):
+    """A person working for a practice or supplier."""
+
+    __tablename__ = 'contact_persons'
+    id = Column(Integer, primary_key=True)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+    email = Column(String)
+    function = Column(String)
+
+    phone_numbers = relationship('PhoneNumber', back_populates='contact_person')
+    practice_links = relationship('PracticeContact', back_populates='contact', cascade='all, delete-orphan')
+    supplier_links = relationship('SupplierContact', back_populates='contact', cascade='all, delete-orphan')
+    practices = relationship('Practice', secondary='practice_contacts', viewonly=True, back_populates='contact_persons')
+    suppliers = relationship('Supplier', secondary='supplier_contacts', viewonly=True, back_populates='contact_persons')
+
+
+class PhoneNumber(Base):
+    """Phone number belonging to a practice, supplier or contact person."""
+
+    __tablename__ = 'phone_numbers'
+    id = Column(Integer, primary_key=True)
+    number = Column(String, nullable=False)
+    type = Column(String)
+    practice_id = Column(Integer, ForeignKey('practices.id'))
+    supplier_id = Column(Integer, ForeignKey('suppliers.id'))
+    contact_person_id = Column(Integer, ForeignKey('contact_persons.id'))
+
+    practice = relationship('Practice', back_populates='phone_numbers')
+    supplier = relationship('Supplier', back_populates='phone_numbers')
+    contact_person = relationship('ContactPerson', back_populates='phone_numbers')
+
+
+class PracticeContact(Base):
+    """Association table linking practices and contact persons."""
+
+    __tablename__ = 'practice_contacts'
+    practice_id = Column(Integer, ForeignKey('practices.id'), primary_key=True)
+    contact_id = Column(Integer, ForeignKey('contact_persons.id'), primary_key=True)
+    role = Column(String)
+    is_primary = Column(Boolean, nullable=False, default=False)
+
+    practice = relationship('Practice', back_populates='contacts')
+    contact = relationship('ContactPerson', back_populates='practice_links')
+
+
+class SupplierContact(Base):
+    """Association table linking suppliers and contact persons."""
+
+    __tablename__ = 'supplier_contacts'
+    supplier_id = Column(Integer, ForeignKey('suppliers.id'), primary_key=True)
+    contact_id = Column(Integer, ForeignKey('contact_persons.id'), primary_key=True)
+    role = Column(String)
+    is_primary = Column(Boolean, nullable=False, default=False)
+
+    supplier = relationship('Supplier', back_populates='contacts')
+    contact = relationship('ContactPerson', back_populates='supplier_links')
 
 
 def _get_session():
