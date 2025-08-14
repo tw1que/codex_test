@@ -13,7 +13,12 @@ def _session():
 @export_bp.route('/contacts.csv')
 def export_csv():
     session = _session()
-    contacts = session.query(Contact).order_by(Contact.name).all()
+    contacts = (
+        session.query(Contact)
+        .filter(Contact.active == True)  # noqa: E712
+        .order_by(Contact.name)
+        .all()
+    )
     session.close()
 
     def generate():
@@ -30,7 +35,12 @@ def export_csv():
 @export_bp.route('/contacts.vcf')
 def export_vcf():
     session = _session()
-    contacts = session.query(Contact).order_by(Contact.name).all()
+    contacts = (
+        session.query(Contact)
+        .filter(Contact.active == True)  # noqa: E712
+        .order_by(Contact.name)
+        .all()
+    )
     session.close()
 
     def generate():

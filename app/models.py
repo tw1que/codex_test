@@ -1,5 +1,5 @@
 from flask import current_app
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import declarative_base
 import csv
 import xml.etree.ElementTree as ET
@@ -13,6 +13,7 @@ class Contact(Base):
     name = Column(String, nullable=False)
     telephone = Column(String, nullable=False)
     category = Column(String, nullable=False, default='other')
+    active = Column(Boolean, nullable=False, default=True)
 
 
 def _get_session():
@@ -22,9 +23,14 @@ def _get_session():
 
 
 def load_phonebook():
-    """Return all contacts ordered by name as a list of dicts."""
+    """Return all active contacts ordered by name as a list of dicts."""
     session = _get_session()
-    contacts = session.query(Contact).order_by(Contact.name).all()
+    contacts = (
+        session.query(Contact)
+        .filter(Contact.active == True)  # noqa: E712
+        .order_by(Contact.name)
+        .all()
+    )
     result = [
         {
             'id': c.id,
@@ -47,9 +53,14 @@ def add_contact(name, telephone, category='other'):
 
 def delete_contact(index):
     session = _get_session()
-    contacts = session.query(Contact).order_by(Contact.name).all()
+    contacts = (
+        session.query(Contact)
+        .filter(Contact.active == True)  # noqa: E712
+        .order_by(Contact.name)
+        .all()
+    )
     if 0 <= index < len(contacts):
-        session.delete(contacts[index])
+        contacts[index].active = False
         session.commit()
         session.close()
         return True
@@ -59,7 +70,12 @@ def delete_contact(index):
 
 def update_contact(index, name, telephone, category='other'):
     session = _get_session()
-    contacts = session.query(Contact).order_by(Contact.name).all()
+    contacts = (
+        session.query(Contact)
+        .filter(Contact.active == True)  # noqa: E712
+        .order_by(Contact.name)
+        .all()
+    )
     if 0 <= index < len(contacts):
         contact = contacts[index]
         contact.name = name

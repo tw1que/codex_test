@@ -28,8 +28,8 @@ Een simpele JSON API is beschikbaar onder `/api/contacts`:
 
 * `GET /api/contacts` – lijst van contacten gesorteerd op naam
 * `POST /api/contacts` – maak een nieuw contact (`name`, `telephone`, optioneel `category`)
-* `PUT /api/contacts/<id>` – update bestaand contact
-* `DELETE /api/contacts/<id>` – verwijder contact
+* `PUT /api/contacts/{id}` – update bestaand contact
+* `DELETE /api/contacts/{id}` – verwijder contact
 
 ### Export
 

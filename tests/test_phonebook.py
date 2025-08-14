@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import create_app
-from app.models import load_phonebook
+from app.models import load_phonebook, Contact
 
 @pytest.fixture
 def client():
@@ -126,6 +126,19 @@ def test_delete_via_delete_method(client):
     assert response.status_code == 204
     contacts_after = load_phonebook()
     assert len(contacts_after) == len(contacts) - 1
+    session = client.application.config['SESSION_FACTORY']()
+    contact = session.query(Contact).filter_by(name='Temp').first()
+    assert contact is not None and contact.active is False
+    session.close()
+
+
+def test_search_and_filter(client):
+    client.post('/add', data={'name': 'Alice', 'telephone': '+311', 'category': 'practice'})
+    client.post('/add', data={'name': 'Bob', 'telephone': '+322', 'category': 'supplier'})
+    resp = client.get('/?q=Ali')
+    assert b'Alice' in resp.data and b'Bob' not in resp.data
+    resp = client.get('/?category=supplier')
+    assert b'Bob' in resp.data and b'Alice' not in resp.data
 
 
 def _search_items(html, query):

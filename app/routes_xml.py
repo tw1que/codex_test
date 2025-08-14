@@ -56,7 +56,7 @@ def root_xml() -> Response:
 
 def _contacts_xml(category: str | None = None) -> bytes:
     session = current_app.config['SESSION_FACTORY']()
-    query = session.query(Contact)
+    query = session.query(Contact).filter(Contact.active == True)  # noqa: E712
     if category:
         query = query.filter(Contact.category == category)
     contacts = query.order_by(Contact.name).all()
