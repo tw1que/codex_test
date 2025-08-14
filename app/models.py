@@ -2,6 +2,7 @@ from flask import current_app
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import declarative_base
 import csv
+import xml.etree.ElementTree as ET
 
 Base = declarative_base()
 
@@ -68,6 +69,25 @@ def import_contacts(fileobj, validator):
     for row in reader:
         name = row.get('name') or row.get('Name')
         telephone = row.get('telephone') or row.get('Telephone')
+        if validator(name, telephone):
+            session.add(Contact(name=name, telephone=telephone))
+            added += 1
+    if added:
+        session.commit()
+    else:
+        session.rollback()
+    session.close()
+    return added
+
+
+def import_contacts_xml(fileobj, validator):
+    session = _get_session()
+    tree = ET.parse(fileobj)
+    root = tree.getroot()
+    added = 0
+    for entry in root.findall('DirectoryEntry'):
+        name = entry.findtext('Name')
+        telephone = entry.findtext('Telephone')
         if validator(name, telephone):
             session.add(Contact(name=name, telephone=telephone))
             added += 1
