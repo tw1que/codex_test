@@ -5,9 +5,15 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./phonebook.xml:/app/phonebook.xml
+      - ./data:/app/data
+      # Optional: mount a legacy phonebook XML for one-time import
+      # - ./phonebook.xml:/app/phonebook.xml
+    environment:
+      - SQLALCHEMY_DATABASE_URI=sqlite:////app/data/phonebook.db
+      # Optional one-time import path
+      - INITIAL_PHONEBOOK_XML=/app/phonebook.xml
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      test: ["CMD-SHELL", "python - <<'PY'\nimport urllib.request,sys\nu='http://localhost:8080/health'\ntry:\n  urllib.request.urlopen(u, timeout=5)\nexcept Exception:\n  sys.exit(1)\nprint('ok')\nPY"]
       interval: 30s
       timeout: 10s
       retries: 5

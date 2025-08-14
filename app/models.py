@@ -25,7 +25,15 @@ def load_phonebook():
     """Return all contacts ordered by name as a list of dicts."""
     session = _get_session()
     contacts = session.query(Contact).order_by(Contact.name).all()
-    result = [{'name': c.name, 'telephone': c.telephone} for c in contacts]
+    result = [
+        {
+            'id': c.id,
+            'name': c.name,
+            'telephone': c.telephone,
+            'category': c.category,
+        }
+        for c in contacts
+    ]
     session.close()
     return result
 

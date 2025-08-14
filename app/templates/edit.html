@@ -13,6 +13,14 @@
     <label class="block mb-1">Nummer</label>
     <input class="w-full border p-2 rounded" type="text" name="telephone" value="{{ contact.telephone }}">
   </div>
+  <div>
+    <label class="block mb-1">Categorie</label>
+    <select class="w-full border p-2 rounded" name="category">
+      <option value="practice" {% if contact.category == 'practice' %}selected{% endif %}>practice</option>
+      <option value="supplier" {% if contact.category == 'supplier' %}selected{% endif %}>supplier</option>
+      <option value="other" {% if contact.category == 'other' %}selected{% endif %}>other</option>
+    </select>
+  </div>
   <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" type="submit">Opslaan</button>
 </form>
 <a class="inline-block mt-4 text-blue-500 hover:underline" href="{{ url_for('main.index') }}">Terug</a>

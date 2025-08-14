@@ -2,9 +2,12 @@ from flask import Flask, Response
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from pathlib import Path
+import os
 
 from .routes import main_bp
 from .routes_xml import xml_bp
+from .routes_api import api_bp
+from .routes_export import export_bp
 from .models import Base, Contact, import_contacts_xml
 from .utils import PHONE_RE
 
@@ -13,7 +16,8 @@ def create_app(test_config=None):
     default_db = Path(__file__).resolve().parents[1] / "phonebook.db"
     app.config.from_mapping(
         SECRET_KEY='dev',
-        SQLALCHEMY_DATABASE_URI=f'sqlite:///{default_db}'
+        SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI', f'sqlite:///{default_db}'),
+        INITIAL_PHONEBOOK_XML=os.environ.get('INITIAL_PHONEBOOK_XML', '/data/phonebook.xml'),
     )
 
     if test_config:
@@ -48,6 +52,8 @@ def create_app(test_config=None):
 
     app.register_blueprint(main_bp)
     app.register_blueprint(xml_bp)
+    app.register_blueprint(api_bp)
+    app.register_blueprint(export_bp)
 
     @app.route("/health", methods=["GET"])
     def health():

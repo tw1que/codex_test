@@ -16,8 +16,9 @@ def add():
     if request.method == 'POST':
         name = request.form.get('name')
         telephone = request.form.get('telephone')
+        category = request.form.get('category', 'other')
         if validate_contact(name, telephone):
-            add_contact(name, telephone)
+            add_contact(name, telephone, category)
             return redirect(url_for('main.index'))
     return render_template('add.html')
 
@@ -40,8 +41,9 @@ def edit(index):
     if request.method == 'POST':
         name = request.form.get('name')
         telephone = request.form.get('telephone')
+        category = request.form.get('category', 'other')
         if validate_contact(name, telephone):
-            update_contact(index, name, telephone)
+            update_contact(index, name, telephone, category)
             return redirect(url_for('main.index'))
     contact = contacts[index]
     return render_template('edit.html', contact=contact, index=index)
