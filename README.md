@@ -1,6 +1,6 @@
 # Yealink Phonebook Server
 
-Deze applicatie biedt een webinterface om een Yealink telefoonboek te beheren. Contacten kunnen worden toegevoegd of verwijderd via de browser en worden opgeslagen in `phonebook.xml` in het Yealink-formaat. De gebruikersinterface is opgezet met **Tailwind CSS** voor een moderne uitstraling zonder extra build-stap.
+Deze applicatie biedt een webinterface om een Yealink telefoonboek te beheren. De gegevens worden opgeslagen in een SQLite-database; de Yealink-XML-bestanden zijn slechts een export van deze database. De gebruikersinterface is opgezet met **Tailwind CSS** voor een moderne uitstraling zonder extra build-stap.
 
 ## Installatie
 
@@ -18,7 +18,7 @@ python run.py
 
 ## Gebruik
 
-Bezoek `http://localhost:8080` voor een lijst van contacten. Gebruik de knop **Nieuwe contact** om een contact toe te voegen. Elk contact heeft een naam en nummer. Bestaande contacten kun je via de link **Bewerk** aanpassen. Wijzigingen worden direct opgeslagen in `phonebook.xml`.
+Bezoek `http://localhost:8080` voor een lijst van contacten. Gebruik de knop **Nieuwe contact** om een contact toe te voegen. Elk contact heeft een naam en nummer. Bestaande contacten kun je via de link **Bewerk** aanpassen. Wijzigingen worden direct in de database opgeslagen en de XML-exports worden automatisch hieruit gegenereerd.
 
 Via de knop **Importeer CSV** kun je meerdere contacten ineens toevoegen. Upload
 een CSV-bestand met kolommen `name` en `telephone`. Alleen rijen met geldige waarden worden toegevoegd.

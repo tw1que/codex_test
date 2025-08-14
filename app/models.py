@@ -12,6 +12,7 @@ class Contact(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     telephone = Column(String, nullable=False)
+    category = Column(String, nullable=False, default='other')
 
 
 def _get_session():
@@ -29,9 +30,9 @@ def load_phonebook():
     return result
 
 
-def add_contact(name, telephone):
+def add_contact(name, telephone, category='other'):
     session = _get_session()
-    session.add(Contact(name=name, telephone=telephone))
+    session.add(Contact(name=name, telephone=telephone, category=category))
     session.commit()
     session.close()
 
@@ -48,13 +49,14 @@ def delete_contact(index):
     return False
 
 
-def update_contact(index, name, telephone):
+def update_contact(index, name, telephone, category='other'):
     session = _get_session()
     contacts = session.query(Contact).order_by(Contact.name).all()
     if 0 <= index < len(contacts):
         contact = contacts[index]
         contact.name = name
         contact.telephone = telephone
+        contact.category = category
         session.commit()
         session.close()
         return True
@@ -62,7 +64,7 @@ def update_contact(index, name, telephone):
     return False
 
 
-def import_contacts(fileobj, validator):
+def import_contacts(fileobj, validator, category='other'):
     session = _get_session()
     reader = csv.DictReader(fileobj)
     added = 0
@@ -70,7 +72,7 @@ def import_contacts(fileobj, validator):
         name = row.get('name') or row.get('Name')
         telephone = row.get('telephone') or row.get('Telephone')
         if validator(name, telephone):
-            session.add(Contact(name=name, telephone=telephone))
+            session.add(Contact(name=name, telephone=telephone, category=category))
             added += 1
     if added:
         session.commit()
@@ -80,7 +82,7 @@ def import_contacts(fileobj, validator):
     return added
 
 
-def import_contacts_xml(fileobj, validator):
+def import_contacts_xml(fileobj, validator, category='other'):
     session = _get_session()
     tree = ET.parse(fileobj)
     root = tree.getroot()
@@ -89,7 +91,7 @@ def import_contacts_xml(fileobj, validator):
         name = entry.findtext('Name')
         telephone = entry.findtext('Telephone')
         if validator(name, telephone):
-            session.add(Contact(name=name, telephone=telephone))
+            session.add(Contact(name=name, telephone=telephone, category=category))
             added += 1
     if added:
         session.commit()
