@@ -5,7 +5,8 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from .routes import main_bp
-from .models import Base, Contact
+from .models import Base, Contact, import_contacts_xml
+from .utils import PHONE_RE
 
 def create_app(test_config=None):
     app = Flask(__name__)
@@ -22,6 +23,27 @@ def create_app(test_config=None):
     Session = sessionmaker(bind=engine)
     app.config['SESSION_FACTORY'] = Session
     Base.metadata.create_all(engine)
+
+    # perform auto-import from Yealink XML if DB is empty
+    def _needs_import(session):
+        return session.query(Contact).count() == 0
+
+    session = Session()
+    if _needs_import(session):
+        xml_path = Path(app.config.get("INITIAL_PHONEBOOK_XML", "/data/phonebook.xml"))
+        if xml_path.is_file():
+            def _validator(name, telephone):
+                if not name or not telephone:
+                    return False
+                if not PHONE_RE.match(telephone):
+                    return False
+                digits = telephone.replace(" ", "").lstrip("+")
+                return digits.isdigit() and len(digits) <= 15
+
+            with xml_path.open("r", encoding="utf-8") as fh:
+                with app.app_context():
+                    import_contacts_xml(fh, _validator)
+    session.close()
 
     app.register_blueprint(main_bp)
 
