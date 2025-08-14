@@ -16,7 +16,16 @@ def _session():
 
 def list_contacts():
     session = _session()
-    contacts = session.query(Contact).order_by(Contact.name).all()
+    query = session.query(Contact).filter(Contact.active == True)  # noqa: E712
+    q = request.args.get('q', '').strip().lower()
+    if q:
+        query = query.filter(
+            (Contact.name.ilike(f'%{q}%')) | (Contact.telephone.ilike(f'%{q}%'))
+        )
+    category = request.args.get('category', '').strip()
+    if category:
+        query = query.filter(Contact.category == category)
+    contacts = query.order_by(Contact.name).all()
     result = [
         {
             'id': c.id,
@@ -61,7 +70,7 @@ def update_contact(contact_id):
     data = request.get_json(silent=True) or {}
     session = _session()
     contact = session.get(Contact, contact_id)
-    if not contact:
+    if not contact or not contact.active:
         session.close()
         return jsonify({'error': 'Not found'}), 404
     name = data.get('name', contact.name)
@@ -90,10 +99,10 @@ def update_contact(contact_id):
 def delete_contact(contact_id):
     session = _session()
     contact = session.get(Contact, contact_id)
-    if not contact:
+    if not contact or not contact.active:
         session.close()
         return jsonify({'error': 'Not found'}), 404
-    session.delete(contact)
+    contact.active = False
     session.commit()
     session.close()
     return ('', 204)

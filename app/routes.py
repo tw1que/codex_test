@@ -7,8 +7,20 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():
+    q = request.args.get('q', '').strip()
+    category = request.args.get('category', '').strip()
     contacts = load_phonebook()
-    return render_template('index.html', contacts=contacts)
+    indexed = list(enumerate(contacts))
+    if q:
+        q_lower = q.lower()
+        indexed = [
+            (i, c)
+            for i, c in indexed
+            if q_lower in c['name'].lower() or q_lower in c['telephone'].lower()
+        ]
+    if category:
+        indexed = [(i, c) for i, c in indexed if c['category'] == category]
+    return render_template('index.html', contacts=indexed, q=q, category=category)
 
 
 @main_bp.route('/add', methods=['GET', 'POST'])

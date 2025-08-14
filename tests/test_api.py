@@ -7,6 +7,7 @@ import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import create_app
+from app.models import Contact
 
 
 @pytest.fixture
@@ -40,13 +41,18 @@ def test_api_crud(client):
     assert data['telephone'] == '+31699999999'
     assert data['category'] == 'supplier'
 
-    # Delete
+    # Delete (soft)
     resp = client.delete(f'/api/contacts/{cid}')
     assert resp.status_code == 204
-    # Ensure gone
+    # Ensure gone from listing
     resp = client.get('/api/contacts')
     data = resp.get_json()
     assert all(c['id'] != cid for c in data)
+    # Ensure still in DB but inactive
+    session = client.application.config['SESSION_FACTORY']()
+    contact = session.get(Contact, cid)
+    assert contact is not None and contact.active is False
+    session.close()
 
     # 404 paths
     assert client.put('/api/contacts/999', json={'name': 'x'}).status_code == 404
