@@ -8,6 +8,10 @@ sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 from app.models import Base
 
 config = context.config
+config.set_main_option(
+    "sqlalchemy.url",
+    os.environ.get("SQLALCHEMY_DATABASE_URI", "sqlite:////app/data/phonebook.db"),
+)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
