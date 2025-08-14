@@ -147,16 +147,27 @@ def test_search_ignores_action_text(client):
     assert len(matches) == 0
 
 
-def test_phonebook_xml(client):
-    """Ensure the phonebook XML is served correctly."""
-    # create at least one contact so the XML has a root element
+def test_all_xml_with_etag(client):
+    """Ensure the XML export and caching headers work."""
     client.post('/add', data={'name': 'Bob', 'telephone': '+31612345678'})
-    response = client.get('/phonebook.xml')
+    response = client.get('/phonebook/all.xml')
     assert response.status_code == 200
     assert response.headers['Content-Type'].startswith('application/xml')
+    etag = response.headers['ETag']
+    last_modified = response.headers['Last-Modified']
     root = ET.fromstring(response.data)
     entries = root.findall('DirectoryEntry')
     assert any(e.findtext('Name') == 'Bob' and e.findtext('Telephone') == '+31612345678' for e in entries)
+    response2 = client.get('/phonebook/all.xml', headers={'If-None-Match': etag, 'If-Modified-Since': last_modified})
+    assert response2.status_code == 304
+
+
+def test_root_xml_menu(client):
+    response = client.get('/phonebook/root.xml')
+    assert response.status_code == 200
+    root = ET.fromstring(response.data)
+    names = [mi.findtext('Name') for mi in root.findall('MenuItem')]
+    assert 'All' in names and 'Practices' in names and 'Suppliers' in names
 
 
 def test_auto_import(tmp_path):
