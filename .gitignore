@@ -3,3 +3,4 @@ __pycache__/
 .pytest_cache/
 phonebook.xml
 phonebook.xml
+data/phonebook.db
