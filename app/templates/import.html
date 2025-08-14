@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}Importeer CSV{% endblock %}
+{% block title %}Importeer CSV of XML{% endblock %}
 
 {% block content %}
 <h1 class="text-2xl font-bold mb-4">Importeer contacten</h1>
+<p class="mb-4 text-gray-700">Upload een CSV- of XML-bestand met contacten.</p>
 <form method="post" enctype="multipart/form-data" class="space-y-4">
   <div>
-    <input class="w-full" type="file" name="file" accept=".csv">
+    <input class="w-full" type="file" name="file" accept=".csv,.xml">
   </div>
   <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" type="submit">Importeren</button>
 </form>

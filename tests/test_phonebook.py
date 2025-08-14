@@ -63,6 +63,24 @@ def test_import_contacts(client):
     assert response.status_code == 200
     assert b'John' in response.data and b'Jane' in response.data
 
+
+def test_import_legacy_xml(client):
+    xml_data = (
+        "<?xml version='1.0' encoding='UTF-8'?>"
+        "<YealinkIPPhoneBook>"
+        "<Directory>"
+        "<Unit Name='John' Phone1='+31611111111'/>"
+        "<Unit Name='Jane' Phone1='+31622222222'/>"
+        "</Directory>"
+        "</YealinkIPPhoneBook>"
+    )
+    data = {
+        'file': (io.BytesIO(xml_data.encode('utf-8')), 'contacts.xml'),
+    }
+    response = client.post('/import', data=data, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'John' in response.data and b'Jane' in response.data
+
 def test_invalid_add_contact(client):
     # missing name and invalid phone number
     response = client.post('/add', data={'name': '', 'telephone': 'abc'}, follow_redirects=True)
