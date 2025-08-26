@@ -1,0 +1,30 @@
+name: Devcontainer validate
+on:
+  pull_request:
+  push:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate devcontainer.json syntax
+        run: |
+          python - <<'PY'
+import json
+json.load(open('.devcontainer/devcontainer.json'))
+print("devcontainer.json OK")
+PY
+
+      - name: Validate docker compose syntax (if present)
+        run: |
+          if [ -f .devcontainer/docker-compose.yml ]; then
+            docker compose -f .devcontainer/docker-compose.yml config >/dev/null
+            echo "docker-compose OK"
+          else
+            echo "No docker-compose file"
+          fi
+
+      - name: Check setup.sh is executable
+        run: test -x .devcontainer/setup.sh
