@@ -1,22 +1,45 @@
-version: '3.8'
+version: "3.9"
 services:
-  phonebook:
-    build: .
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./data:/app/data
-      # Optional: mount a legacy phonebook XML for one-time import
-      # - ./phonebook.xml:/app/phonebook.xml
+  db:
+    image: postgres:16
     environment:
-      - SQLALCHEMY_DATABASE_URI=sqlite:////app/data/phonebook.db
-      - PYTHONPATH=/app
-      # Optional one-time import path
-      - INITIAL_PHONEBOOK_XML=/app/phonebook.xml
+      POSTGRES_USER: inventory
+      POSTGRES_PASSWORD: inventory
+      POSTGRES_DB: inventory
+    volumes:
+      - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "python - <<'PY'\nimport urllib.request,sys\nu='http://localhost:8080/health'\ntry:\n  urllib.request.urlopen(u, timeout=5)\nexcept Exception:\n  sys.exit(1)\nprint('ok')\nPY"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      test: ["CMD-SHELL", "pg_isready -U inventory -d inventory"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
 
+  backend:
+    build: ./backend
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports: ["8000:8000"]
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    env_file: .env
+    depends_on: [backend]
+    ports: ["3000:3000"]
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    command: ["start-dev", "--http-port=8080"]
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports: ["8080:8080"]
+    restart: unless-stopped
+
+volumes:
+  db_data:
