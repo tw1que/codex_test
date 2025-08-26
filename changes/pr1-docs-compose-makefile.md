@@ -1,0 +1,3 @@
+- expand README with setup and Keycloak instructions
+- replace docker-compose with healthchecks and volumes
+- extend Makefile with common targets

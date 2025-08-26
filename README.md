@@ -1,71 +1,93 @@
 # Yealink Phonebook Server
 
-Deze applicatie biedt een webinterface om een Yealink telefoonboek te beheren. De SQLite-database is de enige bron van waarheid; hieruit worden Yealink XML-bestanden, CSV en VCF on‑demand gegenereerd. De gebruikersinterface is opgezet met **Tailwind CSS** voor een moderne uitstraling zonder extra build-stap.
+This project provides a web interface to manage a Yealink phonebook. The database is the source of truth; Yealink XML, CSV and VCF files are generated on demand.
 
-## Installatie
+## Contents
+- [Quickstart](#quickstart)
+- [Environment variables](#environment-variables)
+- [Local development](#local-development)
+- [Keycloak quickstart (local, dev-only)](#keycloak-quickstart-local-dev-only)
+- [Synology Portainer](#synology-portainer)
+- [Troubleshooting](#troubleshooting)
+- [Testing](#testing)
+- [License](#license)
 
-1. Installeer de vereisten.
+## Quickstart
 
-```bash
-pip install -r requirements.txt
-```
-
-2. Start de applicatie lokaal.
-
-```bash
-python run.py
-```
-
-## Gebruik
-
-Bezoek `http://localhost:8080` voor een lijst van contacten. Gebruik de knop **Nieuwe contact** om een contact toe te voegen. Elk contact heeft een naam en nummer. Bestaande contacten kun je via de link **Bewerk** aanpassen. Wijzigingen worden direct in de database opgeslagen en de XML-exports worden automatisch hieruit gegenereerd.
-
-Via de knop **Importeer CSV** kun je meerdere contacten ineens toevoegen. Upload een CSV-bestand met kolommen `name` en `telephone`. Alleen rijen met geldige waarden worden toegevoegd. Elk contact kan een categorie hebben: `practice`, `supplier` of `other`.
-
-### JSON API
-
-Een simpele JSON API is beschikbaar onder `/api/contacts`:
-
-* `GET /api/contacts` – lijst van contacten gesorteerd op naam
-* `POST /api/contacts` – maak een nieuw contact (`name`, `telephone`, optioneel `category`)
-* `PUT /api/contacts/{id}` – update bestaand contact
-* `DELETE /api/contacts/{id}` – verwijder contact
-
-### Export
-
-Naast de Yealink XML is er export naar CSV en VCF:
-
-* `GET /export/contacts.csv`
-* `GET /export/contacts.vcf`
-
-## Docker Deployment
-
-Gebruik de meegeleverde `docker-compose.yml` om de database te bewaren op een volume en een Python-based healthcheck te gebruiken:
+1. Copy the example environment file:
 
 ```bash
-docker compose up --build
+cp .env.example .env
 ```
 
-De compose-file mount `./data` als volume zodat `phonebook.db` bewaard blijft tussen container herstarts. Voor een eenmalige import kan een legacy Yealink XML worden gemount en het pad via `INITIAL_PHONEBOOK_XML` worden doorgegeven.
+2. Start the services:
 
-## Tests
+```bash
+make up
+```
 
+3. Run database migrations:
 
-De makkelijkste manier om de test-suite uit te voeren is via de Makefile:
+```bash
+make backend-migrate
+```
+
+4. Open <http://localhost:3000> in your browser.
+
+## Environment variables
+
+| Key | Example | Description |
+| --- | --- | --- |
+| `DATABASE_URL` | `postgresql+psycopg://inventory:inventory@db:5432/inventory` | SQLAlchemy URL |
+| `BACKEND_PORT` | `8000` | Uvicorn port |
+| `FRONTEND_PORT` | `3000` | Next dev/serve port |
+| `KEYCLOAK_URL` | `http://localhost:8080` | Auth server base URL |
+| `KEYCLOAK_REALM` | `such-empty` | Realm name |
+| `KEYCLOAK_CLIENT_ID` | `frontend` | OIDC client ID |
+| `KEYCLOAK_CLIENT_SECRET` | `changeme` | OIDC secret (if confidential) |
+
+## Local development
+
+Common `make` targets:
+
+```
+make up              # start docker compose stack
+make down            # stop stack and remove volumes
+make logs            # tail container logs
+make backend-migrate # apply database migrations
+make backend-seed    # load demo data
+make fmt             # auto-format code
+make lint            # run linters
+```
+
+## Keycloak quickstart (local, dev-only)
+
+1. Start a dev Keycloak instance:
+
+```bash
+docker run -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:26.0 start-dev
+```
+
+2. Create realm `such-empty`, client `frontend` (public) and add redirect `http://localhost:3000/*`.
+3. Create a user, set a password and assign default roles.
+4. Update `.env` with these values and restart the stack.
+
+## Synology Portainer
+
+For Synology deployment, use `infra/portainer/stack.yml`. Place your `.env` file in `/volume1/docker/such_empty/.env` and bind a volume for Postgres under `/volume1/docker/such_empty/db`.
+
+## Troubleshooting
+
+- **Healthcheck failures:** run `docker compose ps` to inspect container health.
+- **Port collisions:** ensure ports 3000, 8000 and 8080 are free.
+- **Alembic migrations:** always run `make backend-migrate` after model changes.
+
+## Testing
 
 ```bash
 make test
 ```
 
-Dit commando installeert automatisch de vereisten uit `requirements.txt` en draait daarna alle tests.
+## License
 
-Je kunt de stappen ook handmatig uitvoeren:
-
-```bash
-pip install -r requirements.txt
-python -m pytest
-```
-
-## Licentie
-
-Deze software is beschikbaar onder de MIT-licentie. Zie [LICENSE](LICENSE) voor details.
+MIT
