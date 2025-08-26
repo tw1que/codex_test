@@ -20,7 +20,11 @@ PY
       - name: Validate docker compose syntax (if present)
         run: |
           if [ -f .devcontainer/docker-compose.yml ]; then
-            docker compose -f .devcontainer/docker-compose.yml config >/dev/null
+            if docker compose version >/dev/null 2>&1; then
+              docker compose -f .devcontainer/docker-compose.yml config >/dev/null
+            else
+              docker-compose -f .devcontainer/docker-compose.yml config >/dev/null
+            fi
             echo "docker-compose OK"
           else
             echo "No docker-compose file"
