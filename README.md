@@ -91,3 +91,18 @@ make test
 ## License
 
 MIT
+
+## Run in GitHub Codespaces
+
+This repo contains a ready-to-use dev container.
+
+**Steps**
+1. Push your changes and open GitHub → Code → Codespaces → Create codespace on main.
+2. The container provisions Python 3.11 + Node 20 and a Postgres 16 sidecar.
+3. After the first boot, dependencies are auto-installed via `.devcontainer/setup.sh`.
+
+**Useful commands**
+- Backend: `cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
+- Frontend: `cd frontend && npm run dev`
+- DB: available at `db:5432` (user/pass `inventory` / DB `inventory`)
+- Ports are forwarded: 8000 (backend), 3000 (frontend).
